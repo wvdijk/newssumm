@@ -13,7 +13,9 @@ ed_toolbar.appendChild(redir_button);
 /* Prompt for target of redirection, and replace article body with appropriate redirect code */
 function redirect() {
 	var url = prompt('Waar moet dit artikel naar doorverwijzen?');
-	var code = '<script>location.replace(\'' + url + '\')\; document.body.style.visibility = \'hidden\'\; </script><noscript>Dit artikel is te vinden op ' + '<a href=\"' + url + '\">' + url + '</a></noscript>';
-	var content = document.getElementById('content');
-	content.innerText = code;
+	if (url) {
+		var code = '<script>location.replace(\'' + url + '\')\; document.body.style.visibility = \'hidden\'\; </script><noscript>Dit artikel is te vinden op ' + '<a href=\"' + url + '\">' + url + '</a></noscript>';
+		var content = document.getElementById('content');
+		content.innerText = code;
+	}
 }
