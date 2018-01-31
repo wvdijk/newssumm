@@ -1,21 +1,33 @@
-/* Redirect button, by Wieland van Dijk [w.vandijk@nrc.nl], v1.0, July 2017 */
+/* Newssumm button, by Wieland van Dijk [w.vandijk@nrc.nl], v1.0, Jan 2018 */
 
-/* Injects a redirect button in the editor toolbar at honk.nrc.nl */
-var ed_toolbar = document.getElementById('ed_toolbar');
-var redir_button = document.createElement('input');
-redir_button.setAttribute('type', 'button');
-redir_button.setAttribute('id', 'qt_content_redir');
-redir_button.setAttribute('class', 'ed_button button button-small');
-redir_button.setAttribute('value', 'Redirect');
-redir_button.addEventListener('click', redirect);
-ed_toolbar.appendChild(redir_button);
+/* Injects a new Newssumm button in the editor toolbar at honk.nrc.nl. Uncomment if you prefer this
+let ed_toolbar = document.getElementById('ed_toolbar');
+let summ_button = document.createElement('input');
+summ_button.setAttribute('type', 'button');
+summ_button.setAttribute('id', 'qt_content_newssumm');
+summ_button.setAttribute('class', 'ed_button button button-small');
+summ_button.setAttribute('value', 'NewsSumm');
+summ_button.addEventListener('click', makesum);
+ed_toolbar.appendChild(summ_button); */
 
-/* Prompt for target of redirection, and replace article body with appropriate redirect code */
-function redirect() {
-	var url = prompt('Waar moet dit artikel naar doorverwijzen?');
-	if (url) {
-		var code = '<script>location.replace(\'' + url + '\')\; document.body.style.visibility = \'hidden\'\; </script><noscript>Dit artikel is te vinden op ' + '<a href=\"' + url + '\">' + url + '</a></noscript>';
-		var content = document.getElementById('content');
-		content.innerText = code;
-	}
+/* Hijacks existing News Summary button. Comment out if you prefer to keep it, see alternative above */
+let button = document.getElementById('qt_content_ed_newssummary');
+button.addEventListener('click', makesum);
+
+/* Get selected text and turn it into news summary */
+function makesum() {
+	let textarea = document.getElementById('content');
+	let len = textarea.value.length;
+	let start = textarea.selectionStart;
+	let end = textarea.selectionEnd;
+	let sel = textarea.value.substring(start, end);
+
+	/* Regexes to apply lists */
+	let items = sel.replace(/([-\*]\s?)(.*)/g, '<li>$2</li>'); // '- foo' or '* foo'-> <li>foo</li>
+	let open_list = items.replace(/<li>/, '<ul><li>'); // first <li> -> <ul><li>
+	let listed = open_list.replace(/(<\/li>(?=[^<li>]*$))/, '$1</ul>'); // last </li> -> </li></ul>
+	let replace = `<aside class="nieuwsfeit-inleiding inline-news-summary">${listed}</aside>`
+
+	textarea.value =  textarea.value.substring(0,start) + replace + textarea.value.substring(end,len);
+	return false;
 }
